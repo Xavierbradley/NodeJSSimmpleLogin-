@@ -1,4 +1,4 @@
-if (process.node.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
@@ -8,11 +8,13 @@ const bcrypt = require('bcrypt')
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
+const methodOverride = require('methodOverride')
 
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email => users.find(user => user.email === email)
+  email => users.find(user => user.email === email),
+  id => users.find(user => user.id === id)
  )
 
 //storing users in a variable
@@ -25,7 +27,7 @@ app.set('view-engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
 app.use(flash())
 app.use(session({
-  secret: process.env.SESSION_SECRET
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }))
@@ -42,7 +44,7 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', passport.authenticate('local', {
-  successRedirect: '/'
+  successRedirect: '/',
   failureRedirect: '/login',
   failureFlash: true
 }))
